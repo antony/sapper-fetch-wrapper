@@ -44,68 +44,44 @@ function formatBody (body) {
 }
 
 class Api {
-  constructor (client) {
-    this.client = client
-  }
-
-  async send (method, url, data, overrides = {}) {
-    console.log('sending', method, url)
+  prepareRequest (method, url, data, overrides = {}) {
     const endpoint = url.includes('://') ? url : `${base}/${url}`
     const body = formatBody(data)
 
-    const options = {
+    return [endpoint, {
       method,
       ...defaults,
       ...overrides,
       ...body
-    }
-
-    let r
-    try {
-      r = await this.client(endpoint, options)
-    } catch (e) {
-      throw new Error(e.message)
-    }
-
-    try {
-      if (r.ok) {
-        return await r.json()
-      }
-    } catch (e) {
-      return undefined
-    }
-
-    if (Object.keys(errors).includes(`${r.status}`)) {
-      throw new errors[r.status](r.statusText)
-    }
-
-    throw new HttpError(`${r.status}: ${r.statusText} - ${await r.text()}`)
+    }]
   }
 
-  async callWithQuery (method, endpoint, query = {}) {
+  callWithQuery (method, endpoint, query = {}) {
     const qs = querystring.stringify(query)
-    return this.send(method, `${endpoint}${qs ? `?${qs}` : ''}`)
+    return this.prepareRequest(method, `${endpoint}${qs ? `?${qs}` : ''}`)
   }
 
-  async get (endpoint, query = {}) {
+  prepareGet (endpoint, query = {}) {
     return this.callWithQuery('get', endpoint, query)
   }
 
-  async post (endpoint, payload) {
-    return this.send('post', endpoint, payload)
+  preparePost (endpoint, payload) {
+    return this.prepareRequest('post', endpoint, payload)
   }
 
-  async put (endpoint, payload) {
-    return this.send('put', endpoint, payload)
+  preparePut (endpoint, payload) {
+    return this.prepareRequest('put', endpoint, payload)
   }
 
-  async del (endpoint, query) {
+  prepareDel (endpoint, query) {
     return this.callWithQuery('delete', endpoint, query)
   }
 }
 
+const api = new Api()
+
 export {
-  Api,
+  api,
   AccessDeniedError,
   NotFoundError,
   HttpError,

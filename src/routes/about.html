@@ -14,7 +14,7 @@
 <p>Updated email: {updated.email}</p>
 
 <script>
-	import { Api } from '../fetcher'
+	import { api } from '../fetcher'
 
 	export default {
 		data () {
@@ -25,16 +25,16 @@
 
 		methods: {
 			async getUpdatedProfile () {
-				const api = new Api(window.fetch.bind(window))
-				const profile = await api.get('profile')
-				this.set({ updated: profile })
+				const request = api.prepareGet('profile')
+				const response = await fetch(...request)
+				this.set({ updated: await response.json() })
 			}
 		},
 
 		async preload () {
-			const api = new Api(this.fetch)
-			const profile = await api.get('profile')
-			return { profile }
+			const request = api.prepareGet('profile')
+			const response = await this.fetch(...request)
+			return { profile: await response.json() }
 		}
 	}
 </script>
