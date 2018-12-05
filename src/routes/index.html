@@ -1,0 +1,22 @@
+<svelte:head>
+	<title>Sapper project template</title>
+</svelte:head>
+
+Authenticated: {authenticated}
+
+<button on:click="login()">login</button>
+
+<script>
+	import { Api } from '../fetcher'
+
+	export default {
+		methods: {
+			async login () {
+				console.log('hello')
+				const api = new Api(window.fetch.bind(window))
+				await api.get('login')
+				this.set({ authenticated: true })
+			}
+		}
+	}
+</script>

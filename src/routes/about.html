@@ -1,0 +1,40 @@
+<svelte:head>
+	<title>About</title>
+</svelte:head>
+
+<h1>About you</h1>
+
+<p>Your id: {profile.id}</p>
+<p>Your email: {profile.email}</p>
+
+<button on:click="getUpdatedProfile()">Fetch profile</button>
+
+<h2>Updated</h2>
+
+<p>Updated email: {updated.email}</p>
+
+<script>
+	import { Api } from '../fetcher'
+
+	export default {
+		data () {
+			return {
+				updated: {}
+			}
+		},
+
+		methods: {
+			async getUpdatedProfile () {
+				const api = new Api(window.fetch.bind(window))
+				const profile = await api.get('profile')
+				this.set({ updated: profile })
+			}
+		},
+
+		async preload () {
+			const api = new Api(this.fetch)
+			const profile = await api.get('profile')
+			return { profile }
+		}
+	}
+</script>
